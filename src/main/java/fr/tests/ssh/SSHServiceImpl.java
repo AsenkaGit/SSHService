@@ -37,20 +37,22 @@ public class SSHServiceImpl implements SSHService {
 	private Session session;
 
 	@Override
-	public void connect(String username, String host, String password, String privateKeyFilePath, String passphrase, int port, int timeout) throws IOException {
+	public void connect(String username, String host, String password, String privateKeyFilePath, String passphrase,
+			int port, int timeout) throws IOException {
 
 		try {
 			// Prepare and connect the session
 			final JSch jsch = new JSch();
-			
+
 			// If we use a private key authentification method
-			if(privateKeyFilePath != null) {
+			if (privateKeyFilePath != null) {
 				jsch.addIdentity(privateKeyFilePath, passphrase == null ? "" : passphrase);
 			}
 			this.session = jsch.getSession(username, host, port);
-			
-			// If we are NOT using private key authentification method, then we need the password
-			if(password != null && privateKeyFilePath == null) {
+
+			// If we are NOT using private key authentification method, then we need the
+			// password
+			if (password != null && privateKeyFilePath == null) {
 				this.session.setPassword(password);
 			}
 			this.session.setUserInfo(new DefaultUserInfo());
@@ -66,9 +68,11 @@ public class SSHServiceImpl implements SSHService {
 
 		if (this.session != null) {
 
+			ChannelExec channel = null;
+
 			try {
 				// Prepare and connection the channel with the requested command
-				ChannelExec channel = (ChannelExec) session.openChannel(EXEC_CHANNEL_TYPE);
+				channel = (ChannelExec) session.openChannel(EXEC_CHANNEL_TYPE);
 				channel.setCommand(command);
 				channel.setInputStream(null);
 				channel.connect();
@@ -77,12 +81,14 @@ public class SSHServiceImpl implements SSHService {
 				SSHCommandResult commandResult = getResult(channel);
 				commandResult.setCommand(command);
 
-				// Disconnect the execution channel and return the result
-				channel.disconnect();
 				return commandResult;
 
 			} catch (JSchException e) {
 				throw new IOException(e);
+			} finally {
+				if (channel != null) {
+					channel.disconnect();
+				}
 			}
 		} else {
 			throw new IOException("SSH session not ready to execute commands");
