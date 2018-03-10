@@ -1,4 +1,4 @@
-package fr.tests.ssh;
+package fr.asenka.ssh.service;
 
 import java.io.Closeable;
 import java.io.IOException;

@@ -1,9 +1,13 @@
-package fr.tests.ssh;
+
 
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+
+import fr.asenka.ssh.service.SSHCommandResult;
+import fr.asenka.ssh.service.SSHService;
+import fr.asenka.ssh.service.impl.SSHServiceImpl;
 
 public class Main {
 

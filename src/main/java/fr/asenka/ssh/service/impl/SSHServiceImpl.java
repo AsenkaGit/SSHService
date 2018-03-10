@@ -1,4 +1,4 @@
-package fr.tests.ssh;
+package fr.asenka.ssh.service.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,6 +8,9 @@ import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.UserInfo;
+
+import fr.asenka.ssh.service.SSHCommandResult;
+import fr.asenka.ssh.service.SSHService;
 
 /**
  * Implementation of the SSHService based on the <b>JSch</b> library.
