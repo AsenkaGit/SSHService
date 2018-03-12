@@ -1,8 +1,9 @@
 
 
 import java.io.IOException;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import fr.asenka.ssh.service.SSHCommandResult;
@@ -18,18 +19,21 @@ public class Main {
 
 		try {
 			System.out.print("Connection...");
-			sshService.connect("romain", "192.168.56.101", "C:/key-centos_openssh.ppk", "coucou");
-//			sshService.connect("romain", "192.168.56.101", "romain");
+//			sshService.connect("romain", "192.168.56.101", "C:/key-centos_openssh.ppk", "coucou");
+			sshService.connect("romain", "192.168.56.101", "romain");
+			
 			System.out.println("OK.");
 			
-			Future<List<SSHCommandResult>> future = sshService.getFutureForCommands("ls -l", "uname -a");
+
+			ExecutorService executor = Executors.newSingleThreadExecutor();
 			
-			System.out.println(future.get());
+			Future<SSHCommandResult> future = executor.submit(() -> sshService.executeCommand("ls -l"));
 			
+			System.out.println(formatResults(future.get()));
 			
-		} catch (InterruptedException | ExecutionException e) {
-			System.out.println(e.getMessage());
-		} catch (IOException e) {
+			executor.shutdown();
+			
+		} catch (IOException | InterruptedException | ExecutionException e) {
 			System.out.println(e.getMessage());
 		} finally {
 			System.out.println("Close SSH connection...");
@@ -40,5 +44,22 @@ public class Main {
 			}
 			System.out.println("Exit test program.");
 		}
+	}
+	
+	private static final String formatResults(SSHCommandResult... results) {
+		
+		StringBuffer resultBuffer = new StringBuffer();
+		
+		for(SSHCommandResult result : results) {
+			
+			resultBuffer.append("Command:\n");
+			resultBuffer.append("> ");
+			resultBuffer.append(result.getCommand());
+			resultBuffer.append("\n");
+			resultBuffer.append(result.getResponse());
+			resultBuffer.append("[exit status: " + result.getExitStatus() + "]\n");
+			resultBuffer.append("\n");
+		}
+		return resultBuffer.toString();
 	}
 }

@@ -2,6 +2,7 @@ package fr.asenka.ssh.service.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.concurrent.TimeUnit;
 
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSch;
@@ -77,7 +78,7 @@ public class SSHServiceImpl implements SSHService {
 				// Prepare and connection the channel with the requested command
 				channel = (ChannelExec) session.openChannel(EXEC_CHANNEL_TYPE);
 				channel.setCommand(command);
-				channel.setInputStream(null);
+//				channel.setInputStream(null);
 				channel.connect();
 
 				// Read the command response and create the Result
@@ -153,8 +154,8 @@ public class SSHServiceImpl implements SSHService {
 
 				// Wait a little bit...
 				try {
-					Thread.sleep(1000);
-				} catch (Exception ex) {
+					TimeUnit.SECONDS.sleep(1);
+				} catch (InterruptedException ex) {
 					throw new IOException(ex);
 				}
 			}

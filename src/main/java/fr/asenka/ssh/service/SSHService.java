@@ -2,13 +2,6 @@ package fr.asenka.ssh.service;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 /**
  * The SSH service to use when you need to interrogate a remote server with SSH protocol
@@ -71,60 +64,4 @@ public interface SSHService extends Closeable {
 	 * @see {@link SSHCommandResult}
 	 */
 	public SSHCommandResult executeCommand(String command) throws IOException;
-	
-	/**
-	 * Return a Future concurrent object to perform the execution in a separate thread. Example :
-	 * <p>
-	 * <code>
-	 * try {<br />
-	 * &nbsp;&nbsp;&nbsp;Future&lt;SSHCommandResult&gt; future = sshService.getFutureForCommand("ls -l");<br />
-	 * &nbsp;&nbsp;&nbsp;SSHCommandResult result = future.get();<br />
-	 * } catch (InterruptedException | ExecutionException e) {<br />
-	 * &nbsp;&nbsp;&nbsp;// Manage exceptions<br />
-	 * }
-	 * </code>
-	 * </p>
-	 * @param command the command to execute on the remote server
-	 * @return an instance of Future with SSHCommandResult as a result type
-	 */
-	public default Future<SSHCommandResult> getFutureForCommand(String command) {
-		
-		Callable<SSHCommandResult> task = () -> executeCommand(command);
-		ExecutorService executor = Executors.newSingleThreadExecutor();
-	
-		return executor.submit(task);
-	}
-	
-	/**
-	 * Same as {@link SSHService#getFutureForCommand(String)} but with a list of commands to execute. The value returned
-	 * by the future object is a list of SSHCommandResult
-	 * @param commands an array of commands
-	 * @return an instance of Future with List&lt;SSHCommandResult&gt; as a result type.
-	 */
-	public default Future<List<SSHCommandResult>> getFutureForCommands(String... commands) {
-		
-		return getFutureForCommands(Arrays.asList(commands));
-	}
-	
-	/**
-	 * Same as {@link SSHService#getFutureForCommand(String)} but with a list of commands to execute. The value returned
-	 * by the future object is a list of SSHCommandResult
-	 * @param commands a list of commands
-	 * @return an instance of Future with List&lt;SSHCommandResult&gt; as a result type.
-	 */
-	public default Future<List<SSHCommandResult>> getFutureForCommands(List<String> commands) {
-		
-		Callable<List<SSHCommandResult>> task = () -> {
-			
-			List<SSHCommandResult> results = new ArrayList<SSHCommandResult>(commands.size()); 
-			
-			for(String command : commands) {
-				results.add(executeCommand(command));
-			}
-			return results;
-		};
-		ExecutorService executor = Executors.newSingleThreadExecutor();
-
-		return executor.submit(task);
-	}
 }
